@@ -331,9 +331,22 @@ nav .btn {
   gap: 24px;
   margin-bottom: 48px;
 }
+.hero-rec {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hero-rec-label {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
 .hero-rec-link {
   font-family: var(--font-meta);
-  font-size: 0.8rem;
+  font-size: 14px;
   font-weight: 400;
   letter-spacing: 0.02em;
   text-transform: uppercase;
