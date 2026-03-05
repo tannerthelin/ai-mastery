@@ -806,6 +806,10 @@ function App() {
               <span className="arrow">&rarr;</span>
             </a>
           </div>
+          <div className="final-rec">
+            <span className="final-rec-label">Not sure where to start?</span>
+            <a href="#" className="final-rec-link">Get a recommendation</a>
+          </div>
         </div>
       </section>
 

@@ -1190,7 +1190,7 @@ nav .btn {
   margin-bottom: 12px;
 }
 .final-cta p {
-  font-size: 0.9rem;
+  font-size: 18px;
   color: var(--text-tertiary);
   margin-bottom: 32px;
 }
@@ -1205,6 +1205,36 @@ nav .btn {
 }
 .final-cta .cta-row .btn + .btn {
   border-left: none;
+}
+
+.final-rec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 24px;
+}
+.final-rec-label {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.final-rec-link {
+  font-family: var(--font-meta);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.15s;
+}
+.final-rec-link:hover {
+  color: var(--text-secondary);
 }
 
 /* --- Footer --- */
