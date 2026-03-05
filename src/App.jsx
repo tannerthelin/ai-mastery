@@ -539,7 +539,7 @@ function App() {
       <nav className={scrolled ? 'nav-scrolled' : ''}>
         <div className="container">
           <a href="https://www.joinleland.com" className="logo">
-            <img src="/assets/logo-white.svg" alt="Leland" style={{ height: 22, width: 'auto' }} />
+            <img src={`${import.meta.env.BASE_URL}assets/logo-white.svg`} alt="Leland" style={{ height: 22, width: 'auto' }} />
           </a>
           <div className={`nav-default${scrolled ? ' hidden' : ''}`}>
             <a
@@ -639,7 +639,7 @@ function App() {
                 { file: 'intiut.svg', alt: 'Intuit', className: 'logo-ticker-img' },
                 { file: 'Amazon_logo.svg', alt: 'Amazon', className: 'logo-ticker-img' },
               ].map(({ file, alt, className }) => (
-                <img key={`${alt}-${round}`} src={`/assets/logos/${file}`} alt={alt} className={className} />
+                <img key={`${alt}-${round}`} src={`${import.meta.env.BASE_URL}assets/logos/${file}`} alt={alt} className={className} />
               )))}
             </Marquee>
           </div>
