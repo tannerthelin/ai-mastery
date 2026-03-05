@@ -309,7 +309,7 @@ function CourseSection({ id, num, type, title, tagline, tags, sessions, cohorts,
                   <span className="cohort-date">Starting {cohorts[0].date}</span>
                 </div>
                 <a href="#" className="btn btn-primary">
-                  Get started
+                  Enroll
                   <span className="arrow">&rarr;</span>
                 </a>
               </div>
