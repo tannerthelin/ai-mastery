@@ -324,6 +324,28 @@ nav .btn {
   color: var(--text-muted);
 }
 
+/* --- Hero CTA Row --- */
+.hero-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+.hero-rec-link {
+  font-family: var(--font-meta);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color 0.15s;
+}
+.hero-rec-link:hover {
+  color: var(--text-secondary);
+}
+
 /* --- Track Cards --- */
 .track-cards {
   display: grid;
@@ -345,6 +367,12 @@ nav .btn {
 }
 .track-cards:hover .track-card:hover {
   opacity: 1;
+}
+.track-card-img {
+  height: 54px;
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 .track-card-body {
   display: flex;
@@ -406,40 +434,6 @@ nav .btn {
 .track-tag-accent {
   color: #FF6F0F;
   border-color: rgba(255,111,15,0.4);
-}
-.track-card-actions {
-  display: flex;
-  border-top: 1px solid var(--border);
-}
-.track-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 12px 8px;
-  font-family: var(--font-meta);
-  font-size: 12px;
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: color 0.15s, background 0.15s;
-}
-.track-btn:hover {
-  color: var(--text-primary);
-  background: rgba(255,255,255,0.03);
-}
-.track-btn + .track-btn {
-  border-left: 1px solid var(--border);
-}
-.track-btn-enroll {
-  color: #000;
-  background: var(--accent);
-}
-.track-btn-enroll:hover {
-  background: var(--accent-hover);
 }
 
 /* --- Logo Ticker --- */
@@ -810,34 +804,48 @@ nav .btn {
   text-transform: uppercase;
 }
 
-/* --- Testimonials --- */
-.testimonials {
+/* --- Review Hero --- */
+.review-hero {
   padding: 0 0 48px;
   background: var(--bg);
 }
-.testimonial-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-.testimonial-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 28px;
+.review-hero-card {
+  position: relative;
+  border-radius: 0;
+  overflow: hidden;
+  background: url('/ai-mastery/assets/review-bg.png') center center / cover no-repeat;
+  min-height: 420px;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  transition: background 0.15s, border-color 0.15s;
+  align-items: center;
 }
-.testimonial-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.10);
+.review-hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 56px;
+  max-width: 620px;
 }
-.testimonial-top {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.review-hero-headline {
+  font-family: var(--font-heading);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.review-hero-quote {
+  font-size: 22px;
+  color: #ffffff;
+  line-height: 1.3;
+  margin-bottom: 24px;
+}
+.review-hero-author {
+  font-family: var(--font-meta);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 .star-row {
   display: flex;
@@ -846,53 +854,6 @@ nav .btn {
 .star-row svg {
   width: 14px;
   height: 14px;
-}
-.review-headline {
-  font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1.35;
-}
-.testimonial-card blockquote {
-  font-size: 15px;
-  color: var(--text-tertiary);
-  line-height: 1.65;
-  font-style: normal;
-}
-.author {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-.author .avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: var(--accent-dim);
-  color: var(--accent);
-  font-family: var(--font-meta);
-  font-size: 10px;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.author .name {
-  font-family: var(--font-meta);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-primary);
-}
-.author .role {
-  font-family: var(--font-meta);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  color: var(--text-tertiary);
-  text-transform: uppercase;
 }
 
 /* --- Certification --- */
@@ -1381,7 +1342,9 @@ footer a:hover {
   .track-title { font-size: 20px; }
   .track-desc { font-size: 14px; }
   .track-tag { font-size: 10px; padding: 3px 6px; }
-  .track-btn { font-size: 10px; padding: 10px 6px; }
+  .hero-cta-row { gap: 16px; margin-bottom: 32px; }
+  .hero-cta-row .btn { padding: 12px 24px; font-size: 0.75rem; }
+  .hero-rec-link { font-size: 0.7rem; }
 
   /* Logo ticker */
   .logo-ticker { margin-top: 28px; }
@@ -1389,12 +1352,13 @@ footer a:hover {
   .logo-ticker-img { height: 16px; margin: 0 20px; }
   .logo-ticker-img.logo-ticker-lg { height: 20px; }
 
-  /* Testimonials */
-  .testimonials { padding: 0 0 32px; }
-  .testimonial-grid { grid-template-columns: 1fr; gap: 10px; }
-  .testimonial-card { padding: 20px; }
-  .review-headline { font-size: 16px; }
-  .testimonial-card blockquote { font-size: 14px; }
+  /* Review hero */
+  .review-hero { padding: 0 0 24px; }
+  .review-hero-card { min-height: 320px; }
+  .review-hero-content { padding: 28px; }
+  .review-hero-headline { font-size: 24px; }
+  .review-hero-quote { font-size: 15px; margin-bottom: 16px; }
+  .review-hero-author { font-size: 11px; }
 
   /* Course sections */
   .course-section { padding: 48px 0; }

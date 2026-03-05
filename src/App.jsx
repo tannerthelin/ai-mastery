@@ -543,15 +543,11 @@ function App() {
           </a>
           <div className={`nav-default${scrolled ? ' hidden' : ''}`}>
             <a
-              href="#course-1"
-              className="btn btn-primary btn-sm"
+              href="#"
+              className="btn btn-secondary btn-sm"
               style={{ textTransform: 'uppercase', borderRadius: '4px', fontSize: '12px' }}
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('course-1')?.scrollIntoView({ behavior: 'smooth' })
-              }}
             >
-              Get started
+              Get a recommendation
             </a>
           </div>
           <div className={`nav-tabs${scrolled ? '' : ' hidden'}`}>
@@ -603,9 +599,26 @@ function App() {
             RECORDED
           </div>
 
+          <div className="hero-cta-row">
+            <a
+              href="#course-1"
+              className="btn btn-primary btn-lg"
+              style={{ textTransform: 'uppercase' }}
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('course-1')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+            >
+              Get started
+              <span className="arrow">&rarr;</span>
+            </a>
+            <a href="#" className="hero-rec-link">Get a recommendation</a>
+          </div>
+
           <div className="track-cards">
             {trackItems.map((item) => (
               <div className="track-card" key={item.num} onClick={() => document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' })}>
+                <div className="track-card-img"></div>
                 <div className="track-card-body">
                   <div className="track-label">
                     <span className="track-label-text">LEVEL</span>
@@ -618,10 +631,6 @@ function App() {
                     <span className="track-tag">6 Sessions</span>
                     {item.seats && <span className="track-tag track-tag-accent">{item.seats} Seats Left!</span>}
                   </div>
-                </div>
-                <div className="track-card-actions">
-                  <a href={item.href} className="track-btn" onClick={(e) => e.stopPropagation()}>Details <span>&darr;</span></a>
-                  <a href="#" className="track-btn track-btn-enroll" onClick={(e) => e.stopPropagation()}>Enroll</a>
                 </div>
               </div>
             ))}
@@ -646,26 +655,15 @@ function App() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="testimonials">
+      {/* Review */}
+      <section className="review-hero">
         <div className="container">
-          <div className="testimonial-grid">
-            {testimonials.map((t, i) => (
-              <div className="testimonial-card" key={i}>
-                <div className="testimonial-top">
-                  <StarRow />
-                  <p className="review-headline">{t.headline}</p>
-                </div>
-                <blockquote>{t.quote}</blockquote>
-                <div className="author">
-                  <div className="avatar">{t.initials}</div>
-                  <div>
-                    <div className="name">{t.name}</div>
-                    <div className="role">{t.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="review-hero-card">
+            <div className="review-hero-content">
+              <h2 className="review-hero-headline">&ldquo;I automated 6 hours of weekly reporting in the first week.</h2>
+              <p className="review-hero-quote">My manager asked how I did it. The automation module alone paid for the entire course. I went from copying data between spreadsheets to having AI handle the entire pipeline while I focus on analysis.&rdquo;</p>
+              <span className="review-hero-author">Adam K., Operations Lead</span>
+            </div>
           </div>
         </div>
       </section>
