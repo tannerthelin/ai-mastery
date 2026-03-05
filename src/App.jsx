@@ -1,5 +1,159 @@
 import React, { useState, useEffect, useRef } from 'react'
-// import PrismaticBurst from './components/PrismaticBurst'
+import Marquee from 'react-fast-marquee'
+import Squares from './components/Squares'
+
+const LEVELS = [
+  {
+    id: 1, color: '#A5E446', accent: '#A5E446', svgW: 280, svgH: 400, svgScale: 308,
+    nodes: [
+      { id: 'input', x: 140, y: 60, type: 'source' },
+      { id: 'ai', x: 140, y: 200, type: 'ai' },
+      { id: 'output', x: 140, y: 340, type: 'output' },
+    ],
+    edges: [{ from: 'input', to: 'ai' }, { from: 'ai', to: 'output' }],
+    loops: [],
+  },
+  {
+    id: 2, color: '#A5E446', accent: '#A5E446', svgW: 280, svgH: 420, svgScale: 330,
+    nodes: [
+      { id: 'trigger', x: 140, y: 45, type: 'source' },
+      { id: 'ai', x: 140, y: 145, type: 'ai' },
+      { id: 'tool1', x: 70, y: 250, type: 'tool' },
+      { id: 'tool2', x: 140, y: 250, type: 'tool' },
+      { id: 'tool3', x: 210, y: 250, type: 'tool' },
+      { id: 'log', x: 140, y: 360, type: 'output' },
+    ],
+    edges: [
+      { from: 'trigger', to: 'ai' }, { from: 'ai', to: 'tool1' }, { from: 'ai', to: 'tool2' },
+      { from: 'ai', to: 'tool3' }, { from: 'tool1', to: 'log' }, { from: 'tool2', to: 'log' },
+      { from: 'tool3', to: 'log' },
+    ],
+    loops: [],
+  },
+  {
+    id: 3, color: '#A5E446', accent: '#A5E446', svgW: 280, svgH: 420, svgScale: 330,
+    nodes: [
+      { id: 'input', x: 140, y: 35, type: 'source' },
+      { id: 'research', x: 90, y: 140, type: 'agent' },
+      { id: 'write', x: 190, y: 140, type: 'agent' },
+      { id: 'tools', x: 140, y: 250, type: 'ai' },
+      { id: 'crm', x: 90, y: 360, type: 'tool' },
+      { id: 'email', x: 190, y: 360, type: 'output' },
+    ],
+    edges: [
+      { from: 'input', to: 'research' }, { from: 'input', to: 'write' },
+      { from: 'research', to: 'tools' }, { from: 'write', to: 'tools' },
+      { from: 'tools', to: 'crm' }, { from: 'tools', to: 'email' },
+      { from: 'research', to: 'write', dashed: true },
+    ],
+    loops: [{ x: 90, y: 140, r: 25 }],
+  },
+  {
+    id: 4, color: '#A5E446', accent: '#A5E446', svgW: 450, svgH: 280, svgScale: 242,
+    nodes: [
+      { id: 'orch', x: 210, y: 40, type: 'orchestrator' },
+      { id: 'a1', x: 90, y: 130, type: 'agent' },
+      { id: 'a2', x: 210, y: 130, type: 'agent' },
+      { id: 'a3', x: 330, y: 130, type: 'agent' },
+      { id: 'eval', x: 210, y: 210, type: 'eval' },
+      { id: 'qa', x: 360, y: 210, type: 'eval' },
+    ],
+    edges: [
+      { from: 'orch', to: 'a1' }, { from: 'orch', to: 'a2' }, { from: 'orch', to: 'a3' },
+      { from: 'a1', to: 'eval' }, { from: 'a2', to: 'eval' }, { from: 'a3', to: 'qa' },
+      { from: 'eval', to: 'orch', dashed: true }, { from: 'qa', to: 'orch', dashed: true },
+    ],
+    loops: [],
+  },
+  {
+    id: 5, color: '#A5E446', accent: '#A5E446', svgW: 450, svgH: 280, svgScale: 242,
+    nodes: [
+      { id: 'goal', x: 225, y: 25, type: 'source' },
+      { id: 'orch', x: 225, y: 90, type: 'orchestrator' },
+      { id: 'mem', x: 85, y: 150, type: 'agent' },
+      { id: 'a1', x: 165, y: 170, type: 'agent' },
+      { id: 'a2', x: 285, y: 170, type: 'agent' },
+      { id: 'build', x: 365, y: 150, type: 'agent' },
+      { id: 'eval', x: 225, y: 235, type: 'eval' },
+      { id: 'fix', x: 105, y: 235, type: 'eval' },
+      { id: 'dash', x: 345, y: 235, type: 'output' },
+    ],
+    edges: [
+      { from: 'goal', to: 'orch' }, { from: 'orch', to: 'mem' }, { from: 'orch', to: 'a1' },
+      { from: 'orch', to: 'a2' }, { from: 'orch', to: 'build' }, { from: 'a1', to: 'eval' },
+      { from: 'a2', to: 'eval' }, { from: 'build', to: 'dash' },
+      { from: 'eval', to: 'fix', dashed: true }, { from: 'fix', to: 'orch', dashed: true },
+      { from: 'eval', to: 'orch', dashed: true }, { from: 'mem', to: 'a1' }, { from: 'mem', to: 'a2' },
+    ],
+    loops: [{ x: 225, y: 90, r: 28 }],
+  },
+]
+
+function getNodeCenter(nodeId, nodes) {
+  const n = nodes.find((x) => x.id === nodeId)
+  if (!n) return { x: 0, y: 0 }
+  return { x: n.x, y: n.y }
+}
+
+function WorkflowDiagram({ level }) {
+  const { nodes, edges, loops, color, accent } = level
+  const svgW = level.svgW || 450, svgH = level.svgH || 280
+  const nodeRadius = (type) => {
+    if (type === 'orchestrator') return 26
+    if (type === 'source') return 18
+    if (type === 'ai') return 22
+    if (type === 'agent') return 20
+    return 16
+  }
+  return (
+    <svg viewBox={`0 0 ${svgW} ${svgH}`} style={{ height: level.svgScale || 260, width: 'auto', overflow: 'visible' }}>
+      <defs>
+        <radialGradient id={`bg-${level.id}`} cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.05" />
+          <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width={svgW} height={svgH} fill={`url(#bg-${level.id})`} rx="8" />
+      {edges.map((edge, i) => {
+        const from = getNodeCenter(edge.from, nodes)
+        const to = getNodeCenter(edge.to, nodes)
+        const dx = to.x - from.x, dy = to.y - from.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        const fromR = nodeRadius(nodes.find((n) => n.id === edge.from)?.type)
+        const toR = nodeRadius(nodes.find((n) => n.id === edge.to)?.type)
+        const startX = from.x + (dx / dist) * fromR, startY = from.y + (dy / dist) * fromR
+        const endX = to.x - (dx / dist) * (toR + 4), endY = to.y - (dy / dist) * (toR + 4)
+        const cpx = (startX + endX) / 2 + (edge.dashed ? (dy > 0 ? -30 : 30) : 0)
+        const cpy = (startY + endY) / 2 + (edge.dashed ? (dx > 0 ? -20 : 20) : 0)
+        return (
+          <g key={i}>
+            <path d={`M ${startX} ${startY} Q ${cpx} ${cpy} ${endX} ${endY}`} stroke={color} strokeWidth="1" strokeDasharray="2,4" strokeLinecap="round" fill="none" opacity="0.7" />
+            <circle r="3" fill={edge.dashed ? accent : color} opacity="0.9">
+              <animateMotion dur={`${1.5 + i * 0.3}s`} repeatCount="indefinite" path={`M ${startX} ${startY} Q ${cpx} ${cpy} ${endX} ${endY}`} />
+            </circle>
+          </g>
+        )
+      })}
+      {loops.map((loop, i) => (
+        <g key={i}>
+          <path d={`M ${loop.x + loop.r} ${loop.y} C ${loop.x + loop.r * 2.5} ${loop.y - loop.r * 2}, ${loop.x - loop.r * 1.5} ${loop.y - loop.r * 2}, ${loop.x - loop.r} ${loop.y}`} stroke={color} strokeWidth="1" strokeDasharray="2,4" strokeLinecap="round" fill="none" opacity="0.7" />
+        </g>
+      ))}
+      {nodes.map((node) => {
+        const r = nodeRadius(node.type)
+        return (
+          <g key={node.id}>
+            {node.type === 'orchestrator' ? (
+              <rect x={node.x - r} y={node.y - r * 0.7} width={r * 2} height={r * 1.4} rx="5" fill="#121212" stroke={color} strokeWidth="1" />
+            ) : (
+              <circle cx={node.x} cy={node.y} r={r} fill="#121212" stroke={color} strokeWidth="1" />
+            )}
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
 
 const StarIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
@@ -14,7 +168,7 @@ const StarRow = () => (
 )
 
 const ChevronIcon = () => (
-  <svg className="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+  <svg className="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
     <path d="M6 9l6 6 6-6"/>
   </svg>
 )
@@ -80,34 +234,31 @@ function Countdown() {
 function FaqItem({ question, answer, index }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className={`faq-item${open ? ' open' : ''}`}>
-      <div className="faq-q" onClick={() => setOpen(!open)}>
-        <h3><span style={{ color: 'var(--text-muted)', marginRight: 8 }}>faq[{index}]</span>{question}</h3>
-        <ChevronIcon />
-      </div>
-      <div className="faq-a">
-        <p dangerouslySetInnerHTML={{ __html: answer }} />
+    <div className={`faq-item${open ? ' open' : ''}`} onClick={() => setOpen(!open)}>
+      <span className="faq-index">{String(index + 1).padStart(2, '0')}</span>
+      <div className="faq-body">
+        <div className="faq-q">
+          <h3>{question}</h3>
+          <ChevronIcon />
+        </div>
+        <div className="faq-a">
+          <p dangerouslySetInnerHTML={{ __html: answer }} />
+        </div>
       </div>
     </div>
   )
 }
 
-function CourseScreenshot({ text }) {
+function CourseScreenshot({ level }) {
   return (
     <div className="course-screenshot">
-      <div>
-        <div className="dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-        {text}
-      </div>
+      <WorkflowDiagram level={level} />
     </div>
   )
 }
 
-function CourseSection({ id, num, type, title, tagline, tags, roi, roiSource, cohorts, screenshot, reversed }) {
+function CourseSection({ id, num, type, title, tagline, tags, sessions, cohorts, reversed, levelIndex }) {
+  const [expanded, setExpanded] = useState(false)
   return (
     <section className="course-section" id={id}>
       <div className="container">
@@ -124,20 +275,50 @@ function CourseSection({ id, num, type, title, tagline, tags, roi, roiSource, co
                 <span className="tag" key={i}>{tag}</span>
               ))}
             </div>
-            <div className="course-roi">
-              <p>&ldquo;{roi}&rdquo;</p>
-              <div className="source">{roiSource}</div>
+            <div className={`course-sessions${expanded ? ' expanded' : ''}`}>
+              <div className="course-sessions-label">Curriculum</div>
+              <div className="course-sessions-inner">
+                {sessions.map((session, i) => (
+                  <div className="course-session" key={i}>
+                    <span className="course-session-num">{String(i + 1).padStart(2, '0')}</span>
+                    <div className="course-session-text">
+                      <span className="course-session-title">{session.title}</span>
+                      <span className="course-session-sub">{session.sub}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {!expanded ? (
+                <div className="course-sessions-fade" onClick={() => setExpanded(true)}>
+                  <span className="course-sessions-toggle">Show all sessions</span>
+                </div>
+              ) : (
+                <div className="course-sessions-collapse" onClick={() => setExpanded(false)}>
+                  <span className="course-sessions-toggle">Show less</span>
+                </div>
+              )}
             </div>
             <div className="course-cta-group">
-              {cohorts.map((cohort, i) => (
-                <a href="#" className={`btn ${i === 0 ? 'btn-primary' : 'btn-secondary'}`} key={i}>
-                  {cohort.label}
+              <div className="cohort-row cohort-next">
+                <div className="cohort-cal">
+                  <span className="cohort-cal-month">{cohorts[0].month}</span>
+                  <span className="cohort-cal-day">{cohorts[0].day}</span>
+                </div>
+                <div className="cohort-info">
+                  <span className="cohort-label">Next Cohort</span>
+                  <span className="cohort-date">Starting {cohorts[0].date}</span>
+                </div>
+                <a href="#" className="btn btn-primary">
+                  Get started
                   <span className="arrow">&rarr;</span>
                 </a>
-              ))}
+              </div>
+              {cohorts.length > 1 && (
+                <span className="cohort-upcoming">Also runs {cohorts.slice(1).map(c => c.date).join(' & ')}</span>
+              )}
             </div>
           </div>
-          <CourseScreenshot text={screenshot} />
+          <CourseScreenshot level={LEVELS[levelIndex]} />
         </div>
       </div>
     </section>
@@ -147,18 +328,56 @@ function CourseSection({ id, num, type, title, tagline, tags, roi, roiSource, co
 function App() {
   const heroRef = useRef(null)
   const [showSticky, setShowSticky] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const [activeSection, setActiveSection] = useState(null)
+
+  const navSections = [
+    { id: 'course-1', label: 'Level 01' },
+    { id: 'course-2', label: '02' },
+    { id: 'course-3', label: '03' },
+    { id: 'course-4', label: '04' },
+    { id: 'course-5', label: '05' },
+    { id: 'enterprise', label: 'For Teams' },
+  ]
 
   useEffect(() => {
     const hero = heroRef.current
     if (!hero) return
-    const observer = new IntersectionObserver((entries) => {
+    const stickyObserver = new IntersectionObserver((entries) => {
       if (window.innerWidth <= 768) {
         setShowSticky(!entries[0].isIntersecting)
       }
     }, { threshold: 0 })
-    observer.observe(hero)
-    return () => observer.disconnect()
+    stickyObserver.observe(hero)
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      stickyObserver.disconnect()
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
+
+  useEffect(() => {
+    if (!scrolled) { setActiveSection(null); return }
+    const sectionIds = navSections.map(s => s.id)
+    const handleScroll = () => {
+      let current = null
+      for (const id of sectionIds) {
+        const el = document.getElementById(id)
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          if (rect.top <= 120) current = id
+        }
+      }
+      setActiveSection(current)
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [scrolled])
 
   const courses = [
     {
@@ -166,14 +385,20 @@ function App() {
       title: 'Foundations',
       tagline: "Understand what's possible with AI and start using it today. Best for knowledge workers new to AI, professionals building a foundation, and teams preparing for the series.",
       tags: ['Tuesdays and Fridays', '3 Weeks'],
-      roi: 'Workers with AI skills earn a 56% wage premium over peers in the same role without them.',
-      roiSource: 'PwC, 2025',
-      cohorts: [
-        { date: 'April 21', label: 'Enroll — April 21' },
-        { date: 'May 19', label: 'Enroll — May 19' },
-        { date: 'June 16', label: 'Enroll — June 16' },
+      sessions: [
+        { title: 'Transform How You Work Forever', sub: 'AI tool selection, iterative prompting, and turning messy notes into structured outputs.' },
+        { title: 'Let AI Research and Synthesize for You', sub: 'Use AI to research markets, synthesize findings, and produce strategic deliverables.' },
+        { title: 'Analyze Data in Minutes, Not Hours', sub: 'Work with spreadsheets, build financial models, and create visualizations using AI.' },
+        { title: 'Build a Workflow That Runs Daily', sub: 'Chain prompts into repeatable workflows that surface leads and opportunities automatically.' },
+        { title: 'Train AI to Write Emails That Sound Like You', sub: 'Teach AI your voice and build personalized multi-touch communication sequences.' },
+        { title: 'Build an End-to-End Process Workflow', sub: 'Connect research inputs to automated outputs with human-in-the-loop checkpoints.' },
       ],
-      screenshot: 'Foundations: AI fluency, prompt engineering, tool selection',
+      cohorts: [
+        { month: 'APR', day: '21', date: 'April 21' },
+        { month: 'MAY', day: '19', date: 'May 19' },
+        { month: 'JUN', day: '16', date: 'June 16' },
+      ],
+      levelIndex: 0,
       reversed: false,
     },
     {
@@ -181,13 +406,19 @@ function App() {
       title: 'Intelligent Automation',
       tagline: 'Make AI work for you. Automate the tasks eating your week. Best for operators and managers, anyone with repetitive workflows, and professionals who want measurable time back.',
       tags: ['Tuesdays and Fridays', '3 Weeks'],
-      roi: 'AI-powered automation can reduce task completion time by up to 70%.',
-      roiSource: 'McKinsey, 2024',
-      cohorts: [
-        { date: 'April 21', label: 'Enroll — April 21' },
-        { date: 'May 19', label: 'Enroll — May 19' },
+      sessions: [
+        { title: 'Automate the Task You Do Every Week', sub: 'Build your first connected automation that handles a recurring task without you.' },
+        { title: 'Reframe Your Work as a System', sub: 'Map your recurring work as a system and build a prioritized automation backlog.' },
+        { title: 'Build a Tool or Webpage Without a Developer', sub: 'Use vibe coding to build and publish a working tool or page with AI.' },
+        { title: 'Automate Tasks That Span 5+ Tools', sub: 'Build multi-tool workflows with AI processing, error handling, and parallel outputs.' },
+        { title: 'Build a Content or Reporting Engine', sub: 'Turn one input into multiple formatted outputs across destinations on a schedule.' },
+        { title: 'Ship Your Operating Stack', sub: 'Connect your automations into a coherent system where inputs flow and exceptions surface.' },
       ],
-      screenshot: 'Automation: workflow mapping, trigger design, integration',
+      cohorts: [
+        { month: 'APR', day: '21', date: 'April 21' },
+        { month: 'MAY', day: '19', date: 'May 19' },
+      ],
+      levelIndex: 1,
       reversed: true,
     },
     {
@@ -195,12 +426,18 @@ function App() {
       title: 'Agentic Workflows',
       tagline: 'Build AI agents that plan, decide, and execute without babysitting. Best for technical professionals, product builders, and anyone ready to go beyond prompts.',
       tags: ['Tuesdays and Fridays', '3 Weeks'],
-      roi: 'Agentic AI is projected to handle 15% of day-to-day work decisions by 2028.',
-      roiSource: 'Gartner, 2025',
-      cohorts: [
-        { date: 'May 19', label: 'Enroll — May 19' },
+      sessions: [
+        { title: 'Ship Your First Autonomous Agent', sub: 'Build a research agent that takes an input and returns a structured brief autonomously.' },
+        { title: 'Run an Agent Across a List', sub: 'Process entire lists with an agent that enriches each row with structured data at scale.' },
+        { title: 'Build an Agent That Writes', sub: 'Create an agent that reads context and writes personalized messages for each recipient.' },
+        { title: 'Connect an Agent to Your Tools', sub: 'Build an agent that logs activity and updates records in external systems like a CRM.' },
+        { title: 'Build Software With AI', sub: 'Spec and build a working tool or dashboard through natural language, no code required.' },
+        { title: 'Build Your Full Agent Pipeline', sub: 'Chain agents into one pipeline that researches, personalizes, logs, and follows up.' },
       ],
-      screenshot: 'Agents: multi-step reasoning, tool use, autonomous execution',
+      cohorts: [
+        { month: 'MAY', day: '19', date: 'May 19' },
+      ],
+      levelIndex: 2,
       reversed: false,
     },
     {
@@ -208,12 +445,18 @@ function App() {
       title: 'AI Systems Design',
       tagline: 'Design AI-powered systems that scale across your org. Best for team leads and architects, operations and strategy, and professionals designing org-level AI.',
       tags: ['Tuesdays and Fridays', '3 Weeks'],
-      roi: 'Companies with structured AI deployment see 3x faster ROI than those using AI ad hoc.',
-      roiSource: 'Harvard Business Review, 2024',
-      cohorts: [
-        { date: 'June 16', label: 'Enroll — June 16' },
+      sessions: [
+        { title: 'Give an Agent a Goal, Not a Script', sub: 'Design goal-directed agents that plan and execute steps toward an objective autonomously.' },
+        { title: 'Build an Eval System', sub: 'Define rubrics and score agent outputs to measure and improve performance over time.' },
+        { title: 'Build an Agent That Improves Software', sub: 'Give an agent a codebase and improvement goal, let it build, test, and iterate.' },
+        { title: 'Build an Orchestration Layer', sub: 'Build an orchestrator that delegates subtasks to specialized agents and assembles results.' },
+        { title: 'Build a QA Layer for Autonomous Systems', sub: 'Monitor agent outputs, score quality, and alert when something needs human review.' },
+        { title: 'Ship a Goal-Directed Delivery System', sub: 'Deploy an end-to-end autonomous pipeline with evals and human checkpoints.' },
       ],
-      screenshot: 'Systems: architecture patterns, governance, org-wide deployment',
+      cohorts: [
+        { month: 'JUN', day: '16', date: 'June 16' },
+      ],
+      levelIndex: 3,
       reversed: true,
     },
     {
@@ -221,12 +464,18 @@ function App() {
       title: 'Advanced AI Architecture',
       tagline: 'Orchestrate multi-agent systems and enterprise-grade AI infrastructure. Best for senior technical leaders, AI/ML engineers, and enterprise architects.',
       tags: ['Tuesdays and Fridays', '3 Weeks'],
-      roi: 'Organizations deploying multi-agent systems report 40% improvement in complex workflow efficiency.',
-      roiSource: 'Deloitte, 2025',
-      cohorts: [
-        { date: 'July 14', label: 'Enroll — July 14' },
+      sessions: [
+        { title: 'Give Your Agents Institutional Memory', sub: 'Build a retrieval system so agents have real organizational context when they act.' },
+        { title: 'Build an Agent That Works Toward a Long-Horizon Goal', sub: 'Design agents that maintain context across days with checkpointing and drift prevention.' },
+        { title: 'Build an Agent That Builds and Tests Software', sub: 'Give an agent a product goal and let it write, test, and iterate autonomously.' },
+        { title: 'Build a System That Self-Corrects', sub: 'Create feedback loops that detect errors, attempt corrections, and escalate when needed.' },
+        { title: 'Evaluate a System You\'re Not Watching', sub: 'Build a live dashboard with KPIs, anomaly detection, and decision-support alerts.' },
+        { title: 'Build a System That Runs the Business', sub: 'Connect all layers into one autonomous system that pursues goals with minimal human input.' },
       ],
-      screenshot: 'Architecture: multi-agent orchestration, RAG, enterprise infra',
+      cohorts: [
+        { month: 'JUL', day: '14', date: 'July 14' },
+      ],
+      levelIndex: 4,
       reversed: false,
     },
   ]
@@ -277,8 +526,8 @@ function App() {
   ]
 
   const trackItems = [
-    { num: '01', name: 'Learn Foundations', tagline: "Understand what's possible with AI and start using it today.", href: '#course-1' },
-    { num: '02', name: 'Intelligent Automation', tagline: 'Make AI work for you. Automate the tasks eating your week.', href: '#course-2' },
+    { num: '01', name: 'Learn Foundations', tagline: "Understand what's possible with AI and start using it today.", href: '#course-1', seats: 12 },
+    { num: '02', name: 'Intelligent Automation', tagline: 'Make AI work for you. Automate the tasks eating your week.', href: '#course-2', seats: 12 },
     { num: '03', name: 'Agentic Workflows', tagline: 'Build AI agents that plan, decide, and execute without babysitting.', href: '#course-3' },
     { num: '04', name: 'AI Systems Design', tagline: 'Design AI-powered systems that scale across your org.', href: '#course-4' },
     { num: '05', name: 'Advanced AI Architecture', tagline: 'Orchestrate multi-agent systems and enterprise-grade AI infrastructure.', href: '#course-5' },
@@ -287,20 +536,53 @@ function App() {
   return (
     <>
       {/* Navigation */}
-      <nav>
+      <nav className={scrolled ? 'nav-scrolled' : ''}>
         <div className="container">
           <a href="https://www.joinleland.com" className="logo">
             <img src="/assets/logo-white.svg" alt="Leland" style={{ height: 22, width: 'auto' }} />
           </a>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-            <a href="#courses" className="btn btn-secondary btn-sm" style={{ borderRight: 'none' }}>Explore Courses</a>
-            <a href="#enterprise" className="btn btn-primary btn-sm">Enroll</a>
+          <div className={`nav-default${scrolled ? ' hidden' : ''}`}>
+            <a
+              href="#course-1"
+              className="btn btn-primary btn-sm"
+              style={{ textTransform: 'uppercase', borderRadius: '4px', fontSize: '12px' }}
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('course-1')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+            >
+              Get started
+            </a>
+          </div>
+          <div className={`nav-tabs${scrolled ? '' : ' hidden'}`}>
+            {navSections.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                className={`nav-tab${activeSection === s.id ? ' active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                {s.label}
+              </a>
+            ))}
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
       <section className="hero" id="hero" ref={heroRef}>
+        <div className="hero-bg">
+          <Squares
+            direction="diagonal"
+            borderColor="#1a1a1a"
+            hoverFillColor="#111111"
+            squareSize={40}
+            speed={0.5}
+          />
+        </div>
         <div className="container">
           <Countdown />
 
@@ -308,123 +590,72 @@ function App() {
 
           <p className="hero-sub">Our five-course series is designed to help any knowledge worker 100x their output with an AI-first approach.</p>
 
-          <div className="hero-grid" id="courses">
-            <div className="proof-bar">
-              <div><span className="star">&#9733;</span> <span className="rating">4.9/5</span> AVERAGE RATING</div>
-              <div>COHORT-BASED LIVE INSTRUCTION</div>
-              <div>
-                <svg className="proof-icon" width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" stroke="none">
-                  <rect x="2" y="5" width="14" height="14" rx="0"/>
-                  <polygon points="18,7 23,4 23,20 18,17"/>
-                </svg>
-                RECORDED
+          <div className="proof-bar" id="courses">
+            <StarRow />
+            <span className="rating">4.9/5</span> AVERAGE RATING
+            <span className="proof-sep">&middot;</span>
+            COHORT-BASED LIVE INSTRUCTION
+            <span className="proof-sep">&middot;</span>
+            <svg className="proof-icon" width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)" stroke="none">
+              <rect x="2" y="5" width="14" height="14" rx="0"/>
+              <polygon points="18,7 23,4 23,20 18,17"/>
+            </svg>
+            RECORDED
+          </div>
+
+          <div className="track-cards">
+            {trackItems.map((item) => (
+              <div className="track-card" key={item.num} onClick={() => document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' })}>
+                <div className="track-card-body">
+                  <div className="track-label">
+                    <span className="track-label-text">LEVEL</span>
+                    <span className="track-label-num">{item.num}</span>
+                  </div>
+                  <div className="track-title">{item.name}</div>
+                  <div className="track-desc">{item.tagline}</div>
+                  <div className="track-tags">
+                    <span className="track-tag">3 Weeks</span>
+                    <span className="track-tag">6 Sessions</span>
+                    {item.seats && <span className="track-tag track-tag-accent">{item.seats} Seats Left!</span>}
+                  </div>
+                </div>
+                <div className="track-card-actions">
+                  <a href={item.href} className="track-btn" onClick={(e) => e.stopPropagation()}>Details <span>&darr;</span></a>
+                  <a href="#" className="track-btn track-btn-enroll" onClick={(e) => e.stopPropagation()}>Enroll</a>
+                </div>
               </div>
-            </div>
-            <div className="modules-row">
-              <div className="modules-label">MODULES</div>
-              <div className="modules-cells">
-                {trackItems.map((item) => (
-                  <a href={item.href} className="track-item" key={item.num}>
-                    <div className="track-label">
-                      <span className="track-label-text">LEVEL</span>
-                      <span className="track-label-num">{item.num}</span>
-                    </div>
-                    <div className="track-title">{item.name}</div>
-                    <div className="track-desc">{item.tagline}</div>
-                  </a>
-                ))}
-              </div>
-            </div>
+            ))}
+          </div>
+
+          <div className="logo-ticker">
+            <span className="logo-ticker-label">Taught by experts from places like:</span>
+            <Marquee gradient gradientColor="#000000" gradientWidth={80} speed={35}>
+              {[...Array(2)].flatMap((_, round) => [
+                { file: 'OpenAI Logo 1.svg', alt: 'OpenAI', className: 'logo-ticker-img logo-ticker-lg' },
+                { file: 'Spotify Logo 2024.svg', alt: 'Spotify', className: 'logo-ticker-img logo-ticker-lg' },
+                { file: 'Fabletics Logo Vector.svg', alt: 'Fabletics', className: 'logo-ticker-img' },
+                { file: 'google.svg', alt: 'Google', className: 'logo-ticker-img logo-ticker-lg' },
+                { file: 'meta.svg', alt: 'Meta', className: 'logo-ticker-img' },
+                { file: 'intiut.svg', alt: 'Intuit', className: 'logo-ticker-img' },
+                { file: 'Amazon_logo.svg', alt: 'Amazon', className: 'logo-ticker-img' },
+              ].map(({ file, alt, className }) => (
+                <img key={`${alt}-${round}`} src={`/assets/logos/${file}`} alt={alt} className={className} />
+              )))}
+            </Marquee>
           </div>
         </div>
       </section>
 
-      {/* Course Sections */}
-      {courses.map((course) => (
-        <CourseSection key={course.id} {...course} />
-      ))}
-
-      {/* Enterprise Section */}
-      <section className="enterprise" id="enterprise">
-        <div className="container">
-          <div className="section-label">// 06 &mdash; teams</div>
-          <h2>For Teams</h2>
-          <p className="section-intro">Train your team on AI. See ROI in weeks.</p>
-          <p style={{ color: 'var(--text-tertiary)', marginTop: 12, fontSize: '0.85rem' }}>
-            We work with companies from 10-person startups to Fortune 500 to design custom AI training programs. Volume pricing, custom use cases, dedicated support.
-          </p>
-
-          <div className="enterprise-grid">
-            <div className="enterprise-points">
-              <div className="ent-point">
-                <div className="ent-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <circle cx="12" cy="12" r="1"/>
-                    <circle cx="19" cy="12" r="1"/>
-                    <circle cx="5" cy="12" r="1"/>
-                    <path d="M12 5v14M5 12h14"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4>Team licenses from 5 seats</h4>
-                  <p>Enroll your team together. Volume discounts start at 5 seats.</p>
-                </div>
-              </div>
-
-              <div className="ent-point">
-                <div className="ent-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4>Custom workshops available</h4>
-                  <p>We tailor curriculum to your team&apos;s tools, workflows, and industry.</p>
-                </div>
-              </div>
-
-              <div className="ent-point">
-                <div className="ent-icon">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
-                  </svg>
-                </div>
-                <div>
-                  <h4>Dedicated account manager</h4>
-                  <p>A single point of contact for onboarding, scheduling, and support.</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="enterprise-visual">
-              <div>
-                Dashboard showing team progress, completion rates, and ROI metrics
-              </div>
-            </div>
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: 48 }}>
-            <a href="mailto:teams@joinleland.com" className="btn btn-primary btn-lg">
-              Talk to Our Team
-              <span className="arrow">&rarr;</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
+      {/* Testimonials */}
       <section className="testimonials">
         <div className="container">
-          <div className="section-label">// 07 &mdash; testimonials</div>
-          <h2>What People Say</h2>
-          <p className="section-intro">Results that speak for themselves.</p>
-
           <div className="testimonial-grid">
             {testimonials.map((t, i) => (
               <div className="testimonial-card" key={i}>
-                <StarRow />
-                <p className="review-headline">{t.headline}</p>
+                <div className="testimonial-top">
+                  <StarRow />
+                  <p className="review-headline">{t.headline}</p>
+                </div>
                 <blockquote>{t.quote}</blockquote>
                 <div className="author">
                   <div className="avatar">{t.initials}</div>
@@ -439,14 +670,44 @@ function App() {
         </div>
       </section>
 
+      {/* Course Sections */}
+      {courses.map((course) => (
+        <CourseSection key={course.id} {...course} />
+      ))}
+
+      {/* Enterprise Section */}
+      <section className="enterprise" id="enterprise">
+        <div className="container">
+          <div className="enterprise-card">
+            <div className="enterprise-card-content">
+              <h2>For Teams</h2>
+              <p className="enterprise-desc">
+                Train your team on AI. See ROI in weeks. We work with companies from 10-person startups to Fortune 500 to design custom AI training programs. Volume pricing, custom use cases, dedicated support.
+              </p>
+              <div className="enterprise-bottom">
+                <ul className="enterprise-points">
+                  <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1h3v1H2v2H1V1zM10 1h3v3h-1V2h-2V1zM1 10v3h3v-1H2v-2H1zM13 10v3h-3v-1h2v-2h1z" fill="currentColor"/><rect x="5" y="5" width="4" height="4" fill="currentColor"/></svg> Team licenses from 5 seats</li>
+                  <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="3" fill="currentColor"/><rect x="2" y="5.5" width="10" height="3" fill="currentColor"/><rect x="2" y="10" width="10" height="3" fill="currentColor"/></svg> Custom workshops available</li>
+                  <li><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="5" y="1" width="4" height="4" fill="currentColor"/><rect x="3" y="6" width="8" height="2" fill="currentColor"/><rect x="1" y="9" width="12" height="4" fill="currentColor"/></svg> Dedicated account manager</li>
+                </ul>
+                <a href="mailto:teams@joinleland.com" className="btn btn-primary btn-lg">
+                  Talk to Our Team
+                  <span className="arrow">&rarr;</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ Section */}
       <section className="faq">
         <div className="container">
-          <div className="section-label" style={{ textAlign: 'center' }}>// 08 &mdash; faq</div>
-          <h2 style={{ textAlign: 'center' }}>Questions</h2>
-          <p className="section-intro" style={{ textAlign: 'center' }}>Frequently asked questions.</p>
+          <div className="faq-header">
+            <h2>Frequently Asked Questions</h2>
+          </div>
 
-          <div className="faq-list">
+          <div className="faq-grid">
             {faqs.map((faq, i) => (
               <FaqItem key={i} question={faq.q} answer={faq.a} index={i} />
             ))}
@@ -471,15 +732,6 @@ function App() {
           </div>
         </div>
       </section>
-
-      {/* Sources */}
-      <div className="sources">
-        <p>1 PwC, &ldquo;AI Jobs Barometer: Global Report,&rdquo; 2025.</p>
-        <p>2 McKinsey &amp; Company, &ldquo;The State of AI in 2024: Gen AI Adoption and Impact,&rdquo; 2024.</p>
-        <p>3 Gartner, &ldquo;Top Strategic Technology Trends for 2025: Agentic AI,&rdquo; 2025.</p>
-        <p>4 Harvard Business Review, &ldquo;How Companies Are Getting AI Deployment Right,&rdquo; 2024.</p>
-        <p>5 Deloitte, &ldquo;Enterprise AI Trends: Multi-Agent Systems in Practice,&rdquo; 2025.</p>
-      </div>
 
       {/* Footer */}
       <footer>
