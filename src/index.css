@@ -1196,15 +1196,13 @@ nav .btn {
 }
 .final-cta .cta-row {
   display: flex;
-  gap: 0;
+  gap: 8px;
   justify-content: center;
   flex-wrap: wrap;
 }
 .final-cta .cta-row .btn {
   border: 1px solid var(--border);
-}
-.final-cta .cta-row .btn + .btn {
-  border-left: none;
+  text-transform: uppercase;
 }
 
 .final-rec {
