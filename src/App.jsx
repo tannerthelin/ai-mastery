@@ -586,7 +586,7 @@ function App() {
         <div className="container">
           <Countdown />
 
-          <h1>Become a top 1% AI user</h1>
+          <h1>AI Mastery Program</h1>
 
           <p className="hero-sub">Our five-course series is designed to help any knowledge worker 100x their output with an AI-first approach.</p>
 
@@ -699,6 +699,81 @@ function App() {
           </div>
         </div>
       </section>
+
+      {/* Certification Section (hidden for now) */}
+      {false && <section className="certification" id="certification">
+        <div className="container">
+          <div className="cert-intro">
+            <span className="section-label">CREDENTIALS</span>
+            <h2>Walk away certified.</h2>
+            <p className="cert-desc">
+              Every course in the series culminates in a verified certificate of completion from Leland. Finish all five and earn the full AI Mastery designation — a signal to employers, clients, and colleagues that you operate at the highest level of AI proficiency.
+            </p>
+          </div>
+
+          <div className="cert-card">
+            <div className="cert-corner cert-corner-tl"></div>
+            <div className="cert-corner cert-corner-tr"></div>
+            <div className="cert-corner cert-corner-bl"></div>
+            <div className="cert-corner cert-corner-br"></div>
+
+            <div className="cert-inner">
+              <div className="cert-header">
+                <img src={`${import.meta.env.BASE_URL}assets/logo-white.svg`} alt="Leland" className="cert-logo" />
+                <span className="cert-header-label">CERTIFICATE OF COMPLETION</span>
+              </div>
+
+              <div className="cert-body">
+                <span className="cert-awarded">This certifies that</span>
+                <span className="cert-name">Your Name Here</span>
+                <span className="cert-divider"></span>
+                <span className="cert-achievement">has successfully completed the</span>
+                <span className="cert-program">AI Mastery Series</span>
+                <span className="cert-subprogram">Foundations &middot; Intelligent Automation &middot; Agentic Workflows &middot; AI Systems Design &middot; Advanced AI Architecture</span>
+              </div>
+
+              <div className="cert-footer">
+                <div className="cert-sig">
+                  <span className="cert-sig-line"></span>
+                  <span className="cert-sig-label">Program Director</span>
+                </div>
+                <div className="cert-meta">
+                  <span className="cert-date-label">ISSUED</span>
+                  <span className="cert-date-value">2026</span>
+                </div>
+                <div className="cert-sig">
+                  <span className="cert-sig-line"></span>
+                  <span className="cert-sig-label">Leland Verification</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="cert-features">
+            <div className="cert-feature">
+              <span className="cert-feature-num">01</span>
+              <div className="cert-feature-text">
+                <h4>Verified & Shareable</h4>
+                <p>Each certificate includes a unique verification link. Add it to your LinkedIn, resume, or portfolio.</p>
+              </div>
+            </div>
+            <div className="cert-feature">
+              <span className="cert-feature-num">02</span>
+              <div className="cert-feature-text">
+                <h4>Earned Through Application</h4>
+                <p>Certificates are issued upon completing hands-on projects and live sessions — not passive video watching.</p>
+              </div>
+            </div>
+            <div className="cert-feature">
+              <span className="cert-feature-num">03</span>
+              <div className="cert-feature-text">
+                <h4>Full Series Designation</h4>
+                <p>Complete all five courses to earn the AI Mastery designation — a credential that signals top-tier AI proficiency.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>}
 
       {/* FAQ Section */}
       <section className="faq">
