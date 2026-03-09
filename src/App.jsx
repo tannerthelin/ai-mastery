@@ -257,7 +257,7 @@ function CourseScreenshot({ level }) {
   )
 }
 
-function CourseSection({ id, num, type, title, tagline, tags, sessions, cohorts, reversed, levelIndex }) {
+function CourseSection({ id, num, type, title, tagline, tags, sessions, cohorts, reversed, levelIndex, price }) {
   const [expanded, setExpanded] = useState(false)
   return (
     <section className="course-section" id={id}>
@@ -299,6 +299,7 @@ function CourseSection({ id, num, type, title, tagline, tags, sessions, cohorts,
               )}
             </div>
             <div className="course-cta-group">
+              {price && <div className="course-price">{price}</div>}
               <div className="cohort-row cohort-next">
                 <div className="cohort-cal">
                   <span className="cohort-cal-month">{cohorts[0].month}</span>
@@ -399,6 +400,7 @@ function App() {
         { month: 'JUN', day: '16', date: 'June 16' },
       ],
       levelIndex: 0,
+      price: '$999',
       reversed: false,
     },
     {
@@ -419,6 +421,7 @@ function App() {
         { month: 'MAY', day: '19', date: 'May 19' },
       ],
       levelIndex: 1,
+      price: '$999',
       reversed: true,
     },
     {
@@ -438,6 +441,7 @@ function App() {
         { month: 'MAY', day: '19', date: 'May 19' },
       ],
       levelIndex: 2,
+      price: '$999',
       reversed: false,
     },
     {
@@ -457,6 +461,7 @@ function App() {
         { month: 'JUN', day: '16', date: 'June 16' },
       ],
       levelIndex: 3,
+      price: '$999',
       reversed: true,
     },
     {
@@ -476,6 +481,7 @@ function App() {
         { month: 'JUL', day: '14', date: 'July 14' },
       ],
       levelIndex: 4,
+      price: '$999',
       reversed: false,
     },
   ]

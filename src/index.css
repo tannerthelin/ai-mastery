@@ -646,6 +646,15 @@ nav .btn {
   gap: 0;
 }
 
+.course-price {
+  font-family: var(--font-meta);
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+  padding: 12px 0 4px;
+}
+
 /* Cohort Row */
 .cohort-row {
   display: flex;
