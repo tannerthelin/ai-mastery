@@ -293,7 +293,7 @@ function DiscountPopup() {
 
   useEffect(() => {
     if (sessionStorage.getItem('discount_popup_dismissed')) return
-    const timer = setTimeout(() => setVisible(true), 10000)
+    const timer = setTimeout(() => setVisible(true), 15000)
     return () => clearTimeout(timer)
   }, [])
 
@@ -457,6 +457,28 @@ function ExitIntentPopup() {
         )}
       </div>
     </div>
+  )
+}
+
+function RotatingText({ items, interval = 2500 }) {
+  const [index, setIndex] = useState(0)
+  const [animating, setAnimating] = useState(false)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnimating(true)
+      setTimeout(() => {
+        setIndex((prev) => (prev + 1) % items.length)
+        setAnimating(false)
+      }, 400)
+    }, interval)
+    return () => clearInterval(timer)
+  }, [items.length, interval])
+
+  return (
+    <span className={`rotating-text${animating ? ' rotating-out' : ''}`}>
+      {items[index]}
+    </span>
   )
 }
 
@@ -721,7 +743,7 @@ function App() {
         <div className="container">
           <Countdown />
 
-          <h1>AI is here.<br />Don't get left behind.</h1>
+          <h1>Master AI to <RotatingText items={['save your job', 'become a tech leader', 'get a raise', 'save time and money', 'build your company']} interval={1250} /></h1>
 
           <p className="hero-sub">Our mastery program helps you build tools that 100x your output, so you have more time and leverage to pursue what you love.</p>
 
