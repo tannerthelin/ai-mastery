@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from 'react'
 import Marquee from 'react-fast-marquee'
 import Squares from './components/Squares'
 
+const ENROLL_URL = 'https://www.joinleland.com/checkout?bootcampCohort=urn%3AbootcampCohort%3A(urn%3Abootcamp%3A69af7e391104a7bb1cbf5715%2C69af7ea5b3a78d3ad6852270)'
+const DISCOUNT_WEBHOOK_URL = '' // TODO: set n8n webhook URL for discount emails
+const SYLLABUS_WEBHOOK_URL = '' // TODO: set n8n webhook URL for syllabus emails
+
 const StarIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -18,6 +22,10 @@ const ChevronIcon = () => (
   <svg className="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
     <path d="M6 9l6 6 6-6"/>
   </svg>
+)
+
+const LelandIcon = ({ name }) => (
+  <img src={`${import.meta.env.BASE_URL}assets/icons/${name}.svg`} alt={name} className="when-where-svg-icon" />
 )
 
 function Countdown() {
@@ -107,7 +115,7 @@ function CourseAccordionItem({ course, defaultOpen }) {
           <p className="accordion-tagline">{course.tagline.split('.')[0]}.</p>
         </div>
         <div className="accordion-header-right">
-          <a href="https://www.joinleland.com/checkout?bootcampCohort=urn%3AbootcampCohort%3A(urn%3Abootcamp%3A69af7e391104a7bb1cbf5715%2C69af7ea5b3a78d3ad6852270)" className="accordion-enroll-link" onClick={(e) => e.stopPropagation()}>Enroll &rarr;</a>
+          <a href={ENROLL_URL} className="accordion-enroll-link" onClick={(e) => e.stopPropagation()}>Enroll &rarr;</a>
           <ChevronIcon />
         </div>
       </div>
@@ -143,11 +151,310 @@ function CourseAccordionItem({ course, defaultOpen }) {
             <span className="accordion-meta-label">Price</span>
             <span className="accordion-meta-value accordion-price">{course.price}</span>
           </div>
-          <a href="https://www.joinleland.com/checkout?bootcampCohort=urn%3AbootcampCohort%3A(urn%3Abootcamp%3A69af7e391104a7bb1cbf5715%2C69af7ea5b3a78d3ad6852270)" className="btn btn-primary" style={{ textTransform: 'uppercase', marginTop: 12 }}>
+          <a href={ENROLL_URL} className="btn btn-primary" style={{ textTransform: 'uppercase', marginTop: 12 }}>
             Enroll Now
             <span className="arrow">&rarr;</span>
           </a>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function IcebergVisualization({ courses }) {
+  const [selectedLevel, setSelectedLevel] = useState(0)
+  const selected = courses[selectedLevel]
+
+  const levels = [
+    { label: 'Build Foundations', width: 50 },
+    { label: 'Intelligent Automation', width: 60 },
+    { label: 'Agentic Workflows', width: 70 },
+    { label: 'AI Systems Design', width: 80 },
+    { label: 'Advanced AI Architecture', width: 90 },
+  ]
+
+  return (
+    <div className="iceberg">
+      <div className="iceberg-visual">
+        {/* Above water — what most people know */}
+        <div className="iceberg-above">
+          <span className="iceberg-above-label">What most people know</span>
+          <div className="iceberg-tip">
+            <span className="iceberg-tip-label">ChatGPT</span>
+          </div>
+        </div>
+        {/* Waterline divider */}
+        <div className="iceberg-waterline"></div>
+        {/* Below water — what we teach */}
+        <div className="iceberg-below">
+          <div className="iceberg-below-sidebar">
+            <span className="iceberg-below-sidebar-text">What we teach</span>
+          </div>
+          <div className="iceberg-levels">
+            {levels.map((level, i) => (
+              <div
+                key={i}
+                className={`iceberg-level${selectedLevel === i ? ' iceberg-level-active' : ''}`}
+                style={{ width: `${level.width}%` }}
+                onClick={() => setSelectedLevel(i)}
+              >
+                <span className="iceberg-level-num">Level {i + 1}</span>
+                <span className="iceberg-level-name">{level.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="iceberg-detail">
+        <span className="iceberg-detail-level">Level {selected.num}</span>
+        <h3 className="iceberg-detail-title">{selected.title}</h3>
+        <p className="iceberg-detail-desc">{selected.tagline}</p>
+        <a href={ENROLL_URL} className="btn btn-primary" style={{ textTransform: 'uppercase', marginTop: 16 }}>
+          Enroll Now
+          <span className="arrow">&rarr;</span>
+        </a>
+      </div>
+    </div>
+  )
+}
+
+function ValueStack({ id, headline }) {
+  return (
+    <section className={`value-stack${id ? '' : ' value-stack-secondary'}`} id={id || undefined}>
+      <div className="container">
+        <div className="value-stack-box">
+          <h2 className="value-stack-headline">{headline || 'Everything you get with our AI Mastery: Build Foundations Course'}</h2>
+          <div className="value-stack-list">
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">12+ hours of live, cohort-based instruction</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">5+ hands-on deliverables (AI Opportunity Map, Context Templates, Collaboration Protocol, working AI-powered workflow, system blueprints)</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">Access to private Leland AI Mastery community</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">Weekly office hours with instructors</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">Full session recordings + access to future cohort's session recordings for 1 year</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">Certification upon completion</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">3 months of access to Leland+, with 5 specialized AI courses and 250+ AI resources</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">Comprehensive practice environment for you to build everything covered in the course</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">100+ skill.md files, folder templates, and other tools to help you build your AI foundation</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">Best Course Guarantee, money-back if you find better</span>
+            </div>
+            <div className="value-stack-item">
+              <span className="value-stack-check">&#10003;</span>
+              <span className="value-stack-label">Unlimited course retakes for 1 year, letting you access the most up-to-date curriculum</span>
+            </div>
+          </div>
+          <div className="value-stack-pricing">
+            <span className="value-stack-crossed">$2,500+ value</span>
+            <span className="value-stack-price">$999</span>
+          </div>
+          <a href={ENROLL_URL} className="btn btn-primary btn-lg value-stack-cta" style={{ textTransform: 'uppercase' }}>
+            Enroll Now
+            <span className="arrow">&rarr;</span>
+          </a>
+          <span className="value-stack-subtext">Payment plans available</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function DiscountPopup() {
+  const [visible, setVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (sessionStorage.getItem('discount_popup_dismissed')) return
+    const timer = setTimeout(() => setVisible(true), 10000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleClose = () => {
+    setVisible(false)
+    sessionStorage.setItem('discount_popup_dismissed', '1')
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    setError('')
+    // Store locally
+    sessionStorage.setItem('discount_popup_dismissed', '1')
+    localStorage.setItem('discount_email', email)
+    // Post to webhook if configured
+    if (DISCOUNT_WEBHOOK_URL) {
+      try {
+        await fetch(DISCOUNT_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, type: 'discount', timestamp: new Date().toISOString() }),
+        })
+      } catch (_) { /* silent fail — email is stored locally */ }
+    }
+    setSubmitted(true)
+  }
+
+  if (!visible) return null
+
+  return (
+    <div className="popup-overlay" onClick={handleClose}>
+      <div className="popup-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="popup-close" onClick={handleClose}>&times;</button>
+        {submitted ? (
+          <div className="popup-success">
+            <span className="popup-success-icon">&#10003;</span>
+            <h3>You're in!</h3>
+            <p>Check your email for your $200 discount code.</p>
+          </div>
+        ) : (
+          <>
+            <div className="popup-badge">LIMITED OFFER</div>
+            <h3 className="popup-title">Get $200 off</h3>
+            <p className="popup-sub">Enter your email to receive an exclusive $200 discount on AI Mastery: Build Foundations.</p>
+            <form className="popup-form" onSubmit={handleSubmit}>
+              <input
+                type="email"
+                className="popup-input"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+              />
+              {error && <span className="popup-error">{error}</span>}
+              <button type="submit" className="btn btn-primary popup-submit">Claim My Discount</button>
+            </form>
+            <span className="popup-dismiss" onClick={handleClose}>No thanks</span>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ExitIntentPopup() {
+  const [visible, setVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const triggered = useRef(false)
+
+  useEffect(() => {
+    if (localStorage.getItem('syllabus_popup_dismissed')) return
+
+    const handleMouseLeave = (e) => {
+      if (triggered.current) return
+      if (e.clientY <= 0) {
+        triggered.current = true
+        setVisible(true)
+      }
+    }
+
+    // Desktop: mouse leaves viewport at top
+    document.addEventListener('mouseout', handleMouseLeave)
+
+    // Mobile fallback: show after 45 seconds
+    const mobileTimer = setTimeout(() => {
+      if (triggered.current) return
+      if (window.innerWidth <= 768) {
+        triggered.current = true
+        setVisible(true)
+      }
+    }, 45000)
+
+    return () => {
+      document.removeEventListener('mouseout', handleMouseLeave)
+      clearTimeout(mobileTimer)
+    }
+  }, [])
+
+  const handleClose = () => {
+    setVisible(false)
+    localStorage.setItem('syllabus_popup_dismissed', '1')
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    setError('')
+    localStorage.setItem('syllabus_popup_dismissed', '1')
+    localStorage.setItem('syllabus_email', email)
+    if (SYLLABUS_WEBHOOK_URL) {
+      try {
+        await fetch(SYLLABUS_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, type: 'syllabus', timestamp: new Date().toISOString() }),
+        })
+      } catch (_) { /* silent fail */ }
+    }
+    setSubmitted(true)
+  }
+
+  if (!visible) return null
+
+  return (
+    <div className="popup-overlay" onClick={handleClose}>
+      <div className="popup-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="popup-close" onClick={handleClose}>&times;</button>
+        {submitted ? (
+          <div className="popup-success">
+            <span className="popup-success-icon">&#10003;</span>
+            <h3>Check your inbox!</h3>
+            <p>We'll send the full syllabus to your email shortly.</p>
+          </div>
+        ) : (
+          <>
+            <h3 className="popup-title">Get the syllabus</h3>
+            <p className="popup-sub">See a breakdown of what you'll do and learn<br />in each of Level 1's 6 sessions.</p>
+            <form className="popup-form" onSubmit={handleSubmit}>
+              <input
+                type="email"
+                className="popup-input"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+              />
+              {error && <span className="popup-error">{error}</span>}
+              <button type="submit" className="btn btn-primary popup-submit">Send Me the Syllabus</button>
+            </form>
+            <span className="popup-dismiss" onClick={handleClose}>No thanks</span>
+          </>
+        )}
       </div>
     </div>
   )
@@ -162,8 +469,6 @@ function App() {
   const navSections = [
     { id: 'courses', label: 'Courses' },
     { id: 'about', label: 'About' },
-    { id: 'testimonials', label: 'Testimonials' },
-    { id: 'pricing', label: 'Pricing' },
     { id: 'faq', label: 'FAQ' },
   ]
 
@@ -207,7 +512,7 @@ function App() {
   const courses = [
     {
       id: 'course-1', num: '01', type: 'LIVE COURSE',
-      title: 'Foundations',
+      title: 'Build Foundations',
       tagline: "Learn the fundamentals you need to save hours every week with AI. Best for knowledge workers new to AI, professionals building a foundation, and teams preparing for the series.",
       tags: ['Tuesdays and Fridays', '3 Weeks'],
       sessions: [
@@ -373,50 +678,31 @@ function App() {
     },
   ]
 
-  const trackItems = [
-    { num: '01', name: 'Learn Foundations', tagline: 'Learn the fundamentals you need to save hours every week with AI.', href: '#course-1' },
-    { num: '02', name: 'Intelligent Automation', tagline: 'Make AI work for you. Automate the tasks eating your week.', href: '#course-2' },
-    { num: '03', name: 'Agentic Workflows', tagline: 'Build AI agents that plan, decide, and execute without babysitting.', href: '#course-3' },
-    { num: '04', name: 'AI Systems Design', tagline: 'Design AI-powered systems that scale across your org.', href: '#course-4' },
-    { num: '05', name: 'Advanced AI Architecture', tagline: 'Orchestrate multi-agent systems and enterprise-grade AI infrastructure.', href: '#course-5' },
+  const toolPills = [
+    { name: 'OpenAI', logo: 'openai.png' },
+    { name: 'Claude', logo: 'anthropic.png' },
+    { name: 'Gemini', logo: 'google.png' },
+    { name: 'Perplexity', logo: 'perplexity.png' },
+    { name: 'Cursor', logo: 'cursor.png' },
+    { name: 'n8n', logo: 'n8n.svg' },
   ]
+  const skillPills = ['Data analysis', 'Planning', 'Organization', 'Email and communication', 'Slide design', 'Vibe coding', '+ more']
 
   return (
     <>
       {/* ====== 1. Navigation ====== */}
       <nav className={scrolled ? 'nav-scrolled' : ''}>
         <div className="container">
-          <a href="https://www.joinleland.com" className="logo">
+          <span className="logo">
             <img src={`${import.meta.env.BASE_URL}assets/logo-white.svg`} alt="Leland" style={{ height: 22, width: 'auto' }} />
+          </span>
+          <a
+            href={ENROLL_URL}
+            className="btn btn-primary btn-sm"
+            style={{ textTransform: 'uppercase', borderRadius: '4px', fontSize: '12px' }}
+          >
+            Enroll Now
           </a>
-          <div className={`nav-default${scrolled ? ' hidden' : ''}`}>
-            <a
-              href="https://www.joinleland.com/checkout?bootcampCohort=urn%3AbootcampCohort%3A(urn%3Abootcamp%3A69af7e391104a7bb1cbf5715%2C69af7ea5b3a78d3ad6852270)"
-              className="btn btn-primary btn-sm"
-              style={{ textTransform: 'uppercase', borderRadius: '4px', fontSize: '12px' }}
-            >
-              Enroll Now
-            </a>
-          </div>
-          <div className={`nav-tabs${scrolled ? '' : ' hidden'}`}>
-            {navSections.map((s) => (
-              <a
-                key={s.id}
-                href={`#${s.id}`}
-                className={`nav-tab${activeSection === s.id ? ' active' : ''}`}
-                onClick={(e) => {
-                  e.preventDefault()
-                  document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth' })
-                }}
-              >
-                {s.label}
-              </a>
-            ))}
-            <a href="#pricing" className="btn btn-primary btn-sm nav-enroll-btn" onClick={(e) => {
-              e.preventDefault()
-              document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' })
-            }}>Enroll Now</a>
-          </div>
         </div>
       </nav>
 
@@ -431,6 +717,7 @@ function App() {
             speed={0.5}
           />
         </div>
+        <div className="hero-image-bg"></div>
         <div className="container">
           <Countdown />
 
@@ -438,7 +725,7 @@ function App() {
 
           <p className="hero-sub">Our mastery program helps you build tools that 100x your output, so you have more time and leverage to pursue what you love.</p>
 
-          <div className="logo-ticker" style={{ marginTop: 24, marginBottom: 64 }}>
+          <div className="logo-ticker" style={{ marginTop: 24, marginBottom: 96 }}>
             <span className="logo-ticker-label">Taught by experts from places like:</span>
             <Marquee gradient gradientColor="#000000" gradientWidth={80} speed={35}>
               {[...Array(2)].flatMap((_, round) => [
@@ -458,86 +745,165 @@ function App() {
           <div className="track-cards-section" id="courses">
             <h2 className="track-cards-headline">You only know 1% of what's possible</h2>
             <p className="track-cards-subtext">Our 5-course series is designed to take you from someone who uses ChatGPT for one-off tasks to an AI-native builder who runs agentic workflows to accelerate all aspects of their work.</p>
-            <div className="track-cards">
-              {trackItems.map((item) => (
-                <div className={`track-card${item.num === '01' ? ' track-card-featured' : ''}`} key={item.num} onClick={() => document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth' })}>
-                  {item.num === '01' && <div className="track-card-badge">Start Here</div>}
-                  <div className="track-card-img"></div>
-                  <div className="track-card-body">
-                    <div className="track-label">
-                      <span className="track-label-text">LEVEL</span>
-                      <span className="track-label-num">{item.num}</span>
-                    </div>
-                    <div className="track-title">{item.name}</div>
-                    <div className="track-desc">{item.tagline}</div>
-                    <div className="track-tags">
-                      <span className="track-tag">3 Weeks</span>
-                      <span className="track-tag">6 Sessions</span>
-                      {item.seats && <span className="track-tag track-tag-accent">{item.seats} Seats Left!</span>}
-                    </div>
-                  </div>
-                </div>
+            <IcebergVisualization courses={courses} />
+          </div>
+        </div>
+      </section>
+
+      {/* ====== 3. "Why This Course" — full revamp ====== */}
+      <section className="why-section" id="about">
+        <div className="container">
+          <h2 className="why-headline">Build an AI foundation for your work in 3 weeks</h2>
+          <div className="why-tools">
+            <p className="why-tools-label">Learn how to use all the best tools, including:</p>
+            <div className="why-pills">
+              {toolPills.map(tool => (
+                <span className="why-pill" key={tool.name}>
+                  {tool.logo && <img src={`${import.meta.env.BASE_URL}assets/logos/tools/${tool.logo}`} alt={tool.name} className="why-pill-logo" />}
+                  {tool.name}
+                </span>
               ))}
             </div>
           </div>
+          <p className="why-updated">Updated weekly, so you're always learning at the frontier of AI</p>
+          <div className="why-skills">
+            <p className="why-skills-label">We'll teach you best practices for AI in...</p>
+            <div className="why-pills why-pills-skills">
+              {skillPills.map(skill => (
+                <span className="why-pill why-pill-skill" key={skill}>{skill}</span>
+              ))}
+            </div>
+          </div>
+          <p className="why-guarantee-text">If you find a course that's better, we'll give you your money back</p>
         </div>
       </section>
 
-      {/* ====== 3. Problem/Solution — "Why This Course" ====== */}
-      <section className="why-section" id="about">
+      {/* ====== 4. Testimonials (moved up) ====== */}
+      <section className="testimonials-new" id="testimonials">
         <div className="container">
-          <h2 className="why-headline">Why This Course</h2>
-          <div className="why-grid">
-            <div className="why-content">
-              <div className="why-point">
-                <h3>All sessions recorded</h3>
-                <p>Attend live or watch on your schedule. Every session is available within 24 hours, so there's no pressure to be there in real time.</p>
-              </div>
-              <div className="why-point">
-                <h3>Retake as much as you want for 1 year</h3>
-                <p>Tools change fast. Your enrollment includes a full year of retakes with updated curriculum, so you're always current.</p>
-              </div>
-              <div className="why-outcome">
-                <p>Save 5-10 hours per week and get more time with your family and to do things you love.</p>
-              </div>
+          <h2 className="testimonials-new-headline">Proven to transform how you work</h2>
+          <div className="testimonials-grid">
+            <div className="testimonial-card">
+              <StarRow />
+              <p className="testimonial-quote">&ldquo;This course changed my workflow completely. I went from spending hours on repetitive tasks to having AI handle them in minutes. My team keeps asking how I'm getting so much done.&rdquo;</p>
+              <span className="testimonial-author">Angela S.</span>
             </div>
-            <div className="why-stat-box">
-              <span className="why-stat-number">4+ hrs</span>
-              <span className="why-stat-label">saved per week by workers who use AI every day</span>
-              <span className="why-stat-source">Source: Federal Reserve Bank of St. Louis</span>
+            <div className="testimonial-card">
+              <StarRow />
+              <p className="testimonial-quote">&ldquo;I was skeptical that a 3-week course could actually change how I work. By session two, I had already built an automation that saved me 3 hours a week. By the end, I had five.&rdquo;</p>
+              <span className="testimonial-author">Hannah P.</span>
+            </div>
+            <div className="testimonial-card">
+              <StarRow />
+              <p className="testimonial-quote">&ldquo;The hands-on approach is what sets this apart. Every session ended with something I could use at work the next day. Not theory, not slides, actual tools I still use months later.&rdquo;</p>
+              <span className="testimonial-author">Tyler G.</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ====== 4. Solution — 3 Value Prop Half-Sections ====== */}
+      {/* ====== 5. Value Stack (first instance — has pricing anchor) ====== */}
+      <ValueStack id="pricing" />
+
+      {/* ====== 6. When & Where ====== */}
+      <section className="when-where-section">
+        <div className="container">
+          <h2>A flexible and collaborative course structure to fit any busy professional's schedule</h2>
+          <div className="when-where-grid">
+            <div className="when-where-item">
+              <span className="when-where-icon"><LelandIcon name="calendar" /></span>
+              <div>
+                <h3>Next cohort: April 21</h3>
+                <p>New cohorts start regularly. Pick the date that works for you.</p>
+              </div>
+            </div>
+            <div className="when-where-item">
+              <span className="when-where-icon"><LelandIcon name="globe" /></span>
+              <div>
+                <h3>100% online</h3>
+                <p>Attend live or watch recordings. All sessions available within 24 hours.</p>
+              </div>
+            </div>
+            <div className="when-where-item">
+              <span className="when-where-icon"><LelandIcon name="clock" /></span>
+              <div>
+                <h3>6 90-minute live sessions</h3>
+                <p>Tuesdays and Fridays, plus weekly office hours</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====== 7. Save Time (NEW) ====== */}
+      <section className="save-time-section">
+        <div className="container">
+          <h2 className="save-time-headline">Save 10+ hours a week</h2>
+          <p className="save-time-sub">Build AI tools to automate repetitive and manual tasks and get more time with the people and things you love.</p>
+          <div className="save-time-calendar">
+            <div className="save-time-week">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((day, i) => {
+                // 11 blocks saved across the week: 2 per day Mon-Wed, 2 Thu, 3 Fri (all at end of day)
+                const savedStart = [6, 6, 6, 6, 5][i] // block index where "saved" begins
+                return (
+                  <div className="save-time-day" key={day}>
+                    <span className="save-time-day-label">{day}</span>
+                    <div className="save-time-day-blocks">
+                      {[...Array(8)].map((_, j) => (
+                        <div
+                          key={j}
+                          className={`save-time-block${j >= savedStart ? ' save-time-block-saved' : ''}`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="save-time-legend">
+              <div className="save-time-legend-item">
+                <span className="save-time-block-sample"></span>
+                <span>Your work week</span>
+              </div>
+              <div className="save-time-legend-item">
+                <span className="save-time-block-sample save-time-block-saved"></span>
+                <span>Time saved with AI</span>
+              </div>
+            </div>
+          </div>
+          <p className="save-time-cite">Those who invest in AI training are 2x more productive, <strong>saving 11 hours per week</strong> compared with 5 hours for the untrained.</p>
+          <a href="https://cep.lse.ac.uk/pubs/download/dp2048.pdf" target="_blank" rel="noopener noreferrer" className="save-time-source">Source: London School of Economics</a>
+        </div>
+      </section>
+
+      {/* ====== 8. 3 Value Props ====== */}
       <section className="value-props-section">
         <div className="container">
           <div className="value-prop-row">
             <div className="value-prop-text">
               <span className="section-label">01</span>
-              <h2>Build cutting-edge skills</h2>
-              <p>Do more than chat with ChatGPT. We'll help you get ahead, so you're using AI better than your peers. Build workflows, automate tasks, and create tools, not just prompts.</p>
-            </div>
-            <div className="value-prop-image">
-              <img src={`${import.meta.env.BASE_URL}assets/images/value-prop-1.png`} alt="Team working with AI" />
-            </div>
-          </div>
-          <div className="value-prop-row value-prop-row-reversed">
-            <div className="value-prop-text">
-              <span className="section-label">02</span>
-              <h2>Build AI credibility</h2>
-              <p>Be the leading voice for AI on your team. Earn a credential your boss and colleagues will notice. Each course includes a verified certificate. Finish all five for the full AI Mastery designation.</p>
+              <h2>Go further than ChatGPT</h2>
+              <p>Learn to build workflows, automate tasks, and create reusable skills that make AI work the way you want it to. 95% of your colleagues are still typing questions into ChatGPT. This course shows you how to work smarter.</p>
             </div>
             <div className="value-prop-image">
               <img src={`${import.meta.env.BASE_URL}assets/images/value-prop-2.png`} alt="Professional working with AI" />
             </div>
           </div>
+          <div className="value-prop-row value-prop-row-reversed">
+            <div className="value-prop-text">
+              <span className="section-label">02</span>
+              <h2>Become the person your team turns to for AI</h2>
+              <p>Earn a credential and build skills your boss and colleagues will notice. Upon completion of the course, you'll have a certificate (and real AI outcomes) you can share on LinkedIn.</p>
+            </div>
+            <div className="value-prop-image">
+              <img src={`${import.meta.env.BASE_URL}assets/images/value-prop-1.png`} alt="Team working with AI" />
+            </div>
+          </div>
           <div className="value-prop-row">
             <div className="value-prop-text">
               <span className="section-label">03</span>
-              <h2>Build something real</h2>
-              <p>You won't just learn theory. You'll build real tools you use at work. Automations, agents, dashboards, and workflows that save you hours every week.</p>
+              <h2>Each session, build something you'll use at work the next day</h2>
+              <p>Every session ends with a deliverable you can put to work immediately. From automations to data analysis to personalized skills, you'll save hours every week.</p>
             </div>
             <div className="value-prop-image">
               <img src={`${import.meta.env.BASE_URL}assets/images/value-prop-3.png`} alt="Building with AI" />
@@ -546,170 +912,94 @@ function App() {
         </div>
       </section>
 
-      {/* ====== 6. Competitor Comparison ====== */}
-      <section className="comparison-section">
-        <div className="container">
-          <h2 className="comparison-headline">How we compare</h2>
-          <p className="comparison-subtext">This is a 5-course program designed for knowledge workers, not a single workshop or a 400-hour academic curriculum.</p>
-          <div className="comparison-table-wrap">
-            <table className="comparison-table">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th className="comparison-highlight">Leland AI Mastery</th>
-                  <th>eCornell AI 360</th>
-                  <th>Agentic AI PM (Maven)</th>
-                  <th>Building Agentic AI (Maven)</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="comparison-row-label">Price</td>
-                  <td className="comparison-highlight"><strong>$999</strong></td>
-                  <td>$3,600+</td>
-                  <td>$3,000</td>
-                  <td>$3,000</td>
-                </tr>
-                <tr>
-                  <td className="comparison-row-label">Time to complete</td>
-                  <td className="comparison-highlight">3 weeks</td>
-                  <td>420-480 hrs</td>
-                  <td>7 weeks</td>
-                  <td>Cohort-based</td>
-                </tr>
-                <tr>
-                  <td className="comparison-row-label">Format</td>
-                  <td className="comparison-highlight">Hands-on, live</td>
-                  <td>24-course curriculum</td>
-                  <td>Live cohort</td>
-                  <td>Live cohort</td>
-                </tr>
-                <tr>
-                  <td className="comparison-row-label">Level</td>
-                  <td className="comparison-highlight">Beginner–Intermediate</td>
-                  <td>Comprehensive</td>
-                  <td>Advanced</td>
-                  <td>Advanced</td>
-                </tr>
-                <tr>
-                  <td className="comparison-row-label">Certification</td>
-                  <td className="comparison-highlight">&#10003;</td>
-                  <td>&#10003;</td>
-                  <td>&#10003;</td>
-                  <td>&#10003;</td>
-                </tr>
-                <tr>
-                  <td className="comparison-row-label">Always up to date</td>
-                  <td className="comparison-highlight">&#10003;</td>
-                  <td>&#10007;</td>
-                  <td>&#10007;</td>
-                  <td>&#10007;</td>
-                </tr>
-                <tr>
-                  <td className="comparison-row-label">Best course guarantee</td>
-                  <td className="comparison-highlight">&#10003;</td>
-                  <td>&#10007;</td>
-                  <td>&#10007;</td>
-                  <td>&#10007;</td>
-                </tr>
-                <tr>
-                  <td className="comparison-row-label">Built for knowledge workers</td>
-                  <td className="comparison-highlight">&#10003;</td>
-                  <td>&#10007;</td>
-                  <td>&#10007;</td>
-                  <td>&#10007;</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+      {/* ====== 9. Value Stack (second instance — no anchor) ====== */}
+      <ValueStack headline="Invest now to get ahead on AI" />
 
-      {/* ====== 7. Price Box (Value Stack) ====== */}
-      <section className="value-stack" id="pricing">
+      {/* ====== 10. Instructors ====== */}
+      <section className="instructors-section">
         <div className="container">
-          <h2 className="value-stack-headline">Everything you get with AI Mastery</h2>
-          <div className="value-stack-list">
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">12+ hours of live, cohort-based instruction</span>
-            </div>
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">5+ hands-on deliverables (AI Opportunity Map, Context Templates, Collaboration Protocol, working AI-powered workflow, system blueprints)</span>
-            </div>
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">Access to private community</span>
-            </div>
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">Weekly office hours with instructors</span>
-            </div>
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">Full session recordings</span>
-            </div>
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">Certification upon completion</span>
-            </div>
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">Best Course Guarantee, money-back if you find better</span>
-            </div>
-            <div className="value-stack-item">
-              <span className="value-stack-check">&#10003;</span>
-              <span className="value-stack-label">Retake for 1 year, always up-to-date curriculum</span>
-            </div>
-          </div>
-          <div className="value-stack-pricing">
-            <span className="value-stack-crossed">$2,500+ value</span>
-            <span className="value-stack-price">$999</span>
-          </div>
-          <a href="https://www.joinleland.com/checkout?bootcampCohort=urn%3AbootcampCohort%3A(urn%3Abootcamp%3A69af7e391104a7bb1cbf5715%2C69af7ea5b3a78d3ad6852270)" className="btn btn-primary btn-lg value-stack-cta" style={{ textTransform: 'uppercase' }}>
-            Enroll Now
-            <span className="arrow">&rarr;</span>
-          </a>
-          <span className="value-stack-subtext">Payment plans available</span>
-        </div>
-      </section>
-
-      {/* ====== 8. When & Where ====== */}
-      <section className="when-where-section">
-        <div className="container">
-          <h2>When &amp; Where</h2>
-          <div className="when-where-grid">
-            <div className="when-where-item">
-              <span className="when-where-icon">&#128197;</span>
-              <div>
-                <h3>Next cohort: April 21</h3>
-                <p>New cohorts start regularly. Pick the date that works for you.</p>
+          <h2>Built by experts who've helped hundreds learn AI skills</h2>
+          <div className="instructors-grid">
+            <div className="coach-card">
+              <div className="coach-card-top">
+                <img className="coach-card-photo" src={`${import.meta.env.BASE_URL}assets/instructors/kristen-h.jpg`} alt="Kristen H." />
+                <div className="coach-card-info">
+                  <h3 className="coach-card-name">Kristen H.</h3>
+                  <span className="coach-card-role">Lead Instructor</span>
+                </div>
               </div>
-            </div>
-            <div className="when-where-item">
-              <span className="when-where-icon">&#128187;</span>
-              <div>
-                <h3>100% online</h3>
-                <p>Attend live or watch recordings. All sessions available within 24 hours.</p>
+              <div className="coach-card-meta">
+                <span className="coach-card-headline">Lead instructor, ex-Bain &amp; Co.</span>
+                <span className="coach-card-divider"></span>
+                <div className="coach-card-rating">
+                  <StarIcon />
+                  <span>5.0 (14 reviews)</span>
+                </div>
               </div>
+              <p className="coach-card-desc">AI-native builder who's taught dozens of non-technical professionals how to transform their work with AI.</p>
             </div>
-            <div className="when-where-item">
-              <span className="when-where-icon">&#128338;</span>
-              <div>
-                <h3>6 live sessions per course</h3>
-                <p>Tuesdays &amp; Fridays, 60-90 minutes each. 3 weeks per course.</p>
+            <div className="coach-card">
+              <div className="coach-card-top">
+                <img className="coach-card-photo" src={`${import.meta.env.BASE_URL}assets/instructors/andrew-q.jpg`} alt="Andrew Q." />
+                <div className="coach-card-info">
+                  <h3 className="coach-card-name">Andrew Q.</h3>
+                  <span className="coach-card-role">Ex-OpenAI</span>
+                </div>
               </div>
+              <div className="coach-card-meta">
+                <span className="coach-card-headline">Ex-OpenAI</span>
+                <span className="coach-card-divider"></span>
+                <div className="coach-card-rating">
+                  <StarIcon />
+                  <span>5.0 (13 reviews)</span>
+                </div>
+              </div>
+              <p className="coach-card-desc">Expert in helping you build a custom AI stack that compounds.</p>
+            </div>
+            <div className="coach-card">
+              <div className="coach-card-top">
+                <img className="coach-card-photo" src={`${import.meta.env.BASE_URL}assets/instructors/dessy-k.jpg`} alt="Dessy K." />
+                <div className="coach-card-info">
+                  <h3 className="coach-card-name">Dessy K.</h3>
+                  <span className="coach-card-role">TikTok Head of Product</span>
+                </div>
+              </div>
+              <div className="coach-card-meta">
+                <span className="coach-card-headline">TikTok Head of Product</span>
+                <span className="coach-card-divider"></span>
+                <div className="coach-card-rating">
+                  <StarIcon />
+                  <span>5.0 (14 reviews)</span>
+                </div>
+              </div>
+              <p className="coach-card-desc">Expert at vibecoding and using AI to grow companies.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ====== 9. 5-Course Program — Collapsible Accordion ====== */}
+      {/* ====== 11. Guarantees ====== */}
+      <section className="guarantees-section">
+        <div className="container">
+          <h2 className="guarantees-headline">Guaranteed to teach you current, valuable skills</h2>
+          <div className="guarantees-grid">
+            <div className="guarantee-card">
+              <h3>Best Course Guarantee</h3>
+              <p>Complete our course, then take a competitor's course and complete it too. If you think theirs was better, we'll refund you up to the value of that course. We're that confident in the quality.</p>
+            </div>
+            <div className="guarantee-card">
+              <h3>Retake for 1 Year</h3>
+              <p>Retake any course for a full year. Curriculum updates as tools change, so you're always current. It's not just a refresher, it's new content every time.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ====== 12. 5-Course Program Accordion ====== */}
       <section className="accordion-section" id="course-accordion">
         <div className="container">
-          <h2 className="accordion-section-headline">The 5-Course Program</h2>
-          <p className="accordion-section-sub">Each course builds on the last. Start wherever matches your level.</p>
+          <h2 className="accordion-section-headline">Build a foundation with level 1, then continue improving until you've built systems that run without you</h2>
+          <p className="accordion-section-sub">5 courses. Each course builds on the last.</p>
           <div className="accordion-list">
             {courses.map((course, i) => (
               <CourseAccordionItem key={course.id} course={course} defaultOpen={i === 0} />
@@ -718,34 +1008,7 @@ function App() {
         </div>
       </section>
 
-      {/* ====== 10. Instructor Credibility ====== */}
-      <section className="instructors-section">
-        <div className="container">
-          <h2>Meet the Instructors</h2>
-          <div className="instructors-grid">
-            <div className="instructor-card">
-              <img className="instructor-photo-img" src={`${import.meta.env.BASE_URL}assets/instructors/kristen-h.jpg`} alt="Kristen H." />
-              <h3>Kristen H.</h3>
-              <span className="instructor-role">Lead Instructor</span>
-              <p>AI-native builder who's taught dozens of non-technical professionals how to transform their work with AI.</p>
-            </div>
-            <div className="instructor-card">
-              <img className="instructor-photo-img" src={`${import.meta.env.BASE_URL}assets/instructors/andrew-q.jpg`} alt="Andrew Q." />
-              <h3>Andrew Q.</h3>
-              <span className="instructor-role">Ex-OpenAI</span>
-              <p>Expert in helping you build a custom AI stack that compounds.</p>
-            </div>
-            <div className="instructor-card">
-              <img className="instructor-photo-img" src={`${import.meta.env.BASE_URL}assets/instructors/dessy-k.jpg`} alt="Dessy K." />
-              <h3>Dessy K.</h3>
-              <span className="instructor-role">TikTok Head of Product</span>
-              <p>Expert at vibecoding and using AI to grow companies.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ====== 11. Meet with an Advisor ====== */}
+      {/* ====== 13. Advisor CTA ====== */}
       <section className="advisor-section">
         <div className="container">
           <div className="advisor-card">
@@ -759,7 +1022,7 @@ function App() {
         </div>
       </section>
 
-      {/* ====== 12. Enterprise / For Teams ====== */}
+      {/* ====== 14. Enterprise / For Teams ====== */}
       <section className="enterprise" id="enterprise">
         <div className="container">
           <div className="enterprise-card">
@@ -784,23 +1047,7 @@ function App() {
         </div>
       </section>
 
-      {/* ====== 13. Guarantees ====== */}
-      <section className="guarantees-section">
-        <div className="container">
-          <div className="guarantees-grid">
-            <div className="guarantee-card">
-              <h3>Best Course Guarantee</h3>
-              <p>Complete our course, then take a competitor's course and complete it too. If you think theirs was better, we'll refund you up to the value of that course. We're that confident in the quality.</p>
-            </div>
-            <div className="guarantee-card">
-              <h3>Retake for 1 Year</h3>
-              <p>Retake any course for a full year. Curriculum updates as tools change, so you're always current. It's not just a refresher, it's new content every time.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ====== 14. FAQ ====== */}
+      {/* ====== 15. FAQ ====== */}
       <section className="faq" id="faq">
         <div className="container">
           <div className="faq-header">
@@ -815,8 +1062,8 @@ function App() {
         </div>
       </section>
 
-      {/* ====== 15. Footer Social Proof — Testimonials + Enroll CTA ====== */}
-      <section className="testimonials-section" id="testimonials">
+      {/* ====== 16. Footer Social Proof — Testimonials + Enroll CTA ====== */}
+      <section className="testimonials-section">
         <div className="container">
           <div className="testimonials-grid">
             <div className="testimonial-card">
@@ -847,26 +1094,17 @@ function App() {
         </div>
       </section>
 
-      {/* ====== 16. Footer ====== */}
+      {/* ====== 17. Footer ====== */}
       <footer>
         <div className="container">
           <p>&copy; 2026 <a href="https://www.joinleland.com">Leland</a>. All rights reserved.</p>
         </div>
       </footer>
 
-      {/* Mobile Sticky CTA */}
-      <div className="sticky-cta" style={{ display: showSticky ? 'block' : 'none' }}>
-        <div className="container">
-          <div>
-            <div className="sticky-text">AI Mastery Series</div>
-            <div className="sticky-sub">Next cohort: April 21</div>
-          </div>
-          <a href="#courses" className="btn btn-primary btn-sm">
-            Explore Courses
-            <span className="arrow">&rarr;</span>
-          </a>
-        </div>
-      </div>
+      {/* ====== Popups ====== */}
+      <DiscountPopup />
+      <ExitIntentPopup />
+
     </>
   )
 }
