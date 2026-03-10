@@ -292,14 +292,14 @@ function DiscountPopup() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (localStorage.getItem('discount_popup_dismissed')) return
-    const timer = setTimeout(() => setVisible(true), 5000)
+    if (sessionStorage.getItem('discount_popup_dismissed')) return
+    const timer = setTimeout(() => setVisible(true), 10000)
     return () => clearTimeout(timer)
   }, [])
 
   const handleClose = () => {
     setVisible(false)
-    localStorage.setItem('discount_popup_dismissed', '1')
+    sessionStorage.setItem('discount_popup_dismissed', '1')
   }
 
   const handleSubmit = async (e) => {
@@ -310,7 +310,7 @@ function DiscountPopup() {
     }
     setError('')
     // Store locally
-    localStorage.setItem('discount_popup_dismissed', '1')
+    sessionStorage.setItem('discount_popup_dismissed', '1')
     localStorage.setItem('discount_email', email)
     // Post to webhook if configured
     if (DISCOUNT_WEBHOOK_URL) {
@@ -439,7 +439,7 @@ function ExitIntentPopup() {
         ) : (
           <>
             <h3 className="popup-title">Get the syllabus</h3>
-            <p className="popup-sub">See a breakdown of what you'll do and learn in each of Level 1's 6 sessions.</p>
+            <p className="popup-sub">See a breakdown of what you'll do and learn<br />in each of Level 1's 6 sessions.</p>
             <form className="popup-form" onSubmit={handleSubmit}>
               <input
                 type="email"
