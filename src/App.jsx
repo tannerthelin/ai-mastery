@@ -3,6 +3,8 @@ import Marquee from 'react-fast-marquee'
 import Squares from './components/Squares'
 
 const ENROLL_URL = 'https://www.joinleland.com/checkout?bootcampCohort=urn%3AbootcampCohort%3A(urn%3Abootcamp%3A69af7e391104a7bb1cbf5715%2C69af7ea5b3a78d3ad6852270)'
+const DISCOUNT_WEBHOOK_URL = '' // TODO: set n8n webhook URL for discount emails
+const SYLLABUS_WEBHOOK_URL = '' // TODO: set n8n webhook URL for syllabus emails
 
 const StarIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor">
@@ -280,6 +282,181 @@ function ValueStack({ id, headline }) {
         </div>
       </div>
     </section>
+  )
+}
+
+function DiscountPopup() {
+  const [visible, setVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (localStorage.getItem('discount_popup_dismissed')) return
+    const timer = setTimeout(() => setVisible(true), 5000)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleClose = () => {
+    setVisible(false)
+    localStorage.setItem('discount_popup_dismissed', '1')
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    setError('')
+    // Store locally
+    localStorage.setItem('discount_popup_dismissed', '1')
+    localStorage.setItem('discount_email', email)
+    // Post to webhook if configured
+    if (DISCOUNT_WEBHOOK_URL) {
+      try {
+        await fetch(DISCOUNT_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, type: 'discount', timestamp: new Date().toISOString() }),
+        })
+      } catch (_) { /* silent fail — email is stored locally */ }
+    }
+    setSubmitted(true)
+  }
+
+  if (!visible) return null
+
+  return (
+    <div className="popup-overlay" onClick={handleClose}>
+      <div className="popup-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="popup-close" onClick={handleClose}>&times;</button>
+        {submitted ? (
+          <div className="popup-success">
+            <span className="popup-success-icon">&#10003;</span>
+            <h3>You're in!</h3>
+            <p>Check your email for your $200 discount code.</p>
+          </div>
+        ) : (
+          <>
+            <div className="popup-badge">LIMITED OFFER</div>
+            <h3 className="popup-title">Get $200 off</h3>
+            <p className="popup-sub">Enter your email to receive an exclusive $200 discount on AI Mastery: Build Foundations.</p>
+            <form className="popup-form" onSubmit={handleSubmit}>
+              <input
+                type="email"
+                className="popup-input"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+              />
+              {error && <span className="popup-error">{error}</span>}
+              <button type="submit" className="btn btn-primary popup-submit">Claim My Discount</button>
+            </form>
+            <span className="popup-dismiss" onClick={handleClose}>No thanks</span>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ExitIntentPopup() {
+  const [visible, setVisible] = useState(false)
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState('')
+  const triggered = useRef(false)
+
+  useEffect(() => {
+    if (localStorage.getItem('syllabus_popup_dismissed')) return
+
+    const handleMouseLeave = (e) => {
+      if (triggered.current) return
+      if (e.clientY <= 0) {
+        triggered.current = true
+        setVisible(true)
+      }
+    }
+
+    // Desktop: mouse leaves viewport at top
+    document.addEventListener('mouseout', handleMouseLeave)
+
+    // Mobile fallback: show after 45 seconds
+    const mobileTimer = setTimeout(() => {
+      if (triggered.current) return
+      if (window.innerWidth <= 768) {
+        triggered.current = true
+        setVisible(true)
+      }
+    }, 45000)
+
+    return () => {
+      document.removeEventListener('mouseout', handleMouseLeave)
+      clearTimeout(mobileTimer)
+    }
+  }, [])
+
+  const handleClose = () => {
+    setVisible(false)
+    localStorage.setItem('syllabus_popup_dismissed', '1')
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    setError('')
+    localStorage.setItem('syllabus_popup_dismissed', '1')
+    localStorage.setItem('syllabus_email', email)
+    if (SYLLABUS_WEBHOOK_URL) {
+      try {
+        await fetch(SYLLABUS_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, type: 'syllabus', timestamp: new Date().toISOString() }),
+        })
+      } catch (_) { /* silent fail */ }
+    }
+    setSubmitted(true)
+  }
+
+  if (!visible) return null
+
+  return (
+    <div className="popup-overlay" onClick={handleClose}>
+      <div className="popup-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="popup-close" onClick={handleClose}>&times;</button>
+        {submitted ? (
+          <div className="popup-success">
+            <span className="popup-success-icon">&#10003;</span>
+            <h3>Check your inbox!</h3>
+            <p>We'll send the full syllabus to your email shortly.</p>
+          </div>
+        ) : (
+          <>
+            <h3 className="popup-title">Get the syllabus</h3>
+            <p className="popup-sub">See a breakdown of what you'll do and learn in each of Level 1's 6 sessions.</p>
+            <form className="popup-form" onSubmit={handleSubmit}>
+              <input
+                type="email"
+                className="popup-input"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+              />
+              {error && <span className="popup-error">{error}</span>}
+              <button type="submit" className="btn btn-primary popup-submit">Send Me the Syllabus</button>
+            </form>
+            <span className="popup-dismiss" onClick={handleClose}>No thanks</span>
+          </>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -923,6 +1100,10 @@ function App() {
           <p>&copy; 2026 <a href="https://www.joinleland.com">Leland</a>. All rights reserved.</p>
         </div>
       </footer>
+
+      {/* ====== Popups ====== */}
+      <DiscountPopup />
+      <ExitIntentPopup />
 
     </>
   )
