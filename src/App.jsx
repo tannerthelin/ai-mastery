@@ -3,7 +3,7 @@ import Marquee from 'react-fast-marquee'
 import Squares from './components/Squares'
 
 const ENROLL_URL = 'https://www.joinleland.com/checkout?bootcampCohort=urn%3AbootcampCohort%3A(urn%3Abootcamp%3A69af7e391104a7bb1cbf5715%2C69af7ea5b3a78d3ad6852270)'
-const DISCOUNT_WEBHOOK_URL = '' // TODO: set n8n webhook URL for discount emails
+const DISCOUNT_WEBHOOK_URL = 'https://lelandteam.app.n8n.cloud/webhook/ai-mastery-discount'
 const SYLLABUS_WEBHOOK_URL = '' // TODO: set n8n webhook URL for syllabus emails
 
 const StarIcon = () => (
